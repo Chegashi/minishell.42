@@ -29,10 +29,17 @@
  */
 int	get_next_line(int fd, char **line);
 
+typedef struct s_pipes
+{
+    char **cmd;
+    struct s_cmd *next;
+}       t_pipes;
+
 typedef struct s_cmd
 {
     char **cmd;
-	// t_pipes *pipes;
+	char type;
+	t_pipes *pipes;
     struct s_cmd *next;
 }       t_cmd;
 
@@ -562,7 +569,6 @@ void check_commands(t_shell *shell, char *line)
 		return ;
 	while (tmp)
 	{
-		// maybe here the seg check in search_path +add 
 		if (tmp->cmd[0]){
 			if (tmp->cmd[0][0] == '/')
 				ft_path(shell, tmp->cmd[0]);
