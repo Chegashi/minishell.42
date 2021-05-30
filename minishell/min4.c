@@ -1,30 +1,28 @@
-#include <stdio.h>
+#include<stdio.h>
+#include<signal.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <signal.h>
 #include <string.h>
-//Used for handling directory files
 #include <dirent.h>
 #include <sys/stat.h>
 #include "libft/libft.h"
 #include <sys/types.h>
 #include <sys/wait.h>
-// typedef struct s_simple_cmd
-// {
-//     char    *line;
-//     char    **params;
-//     struct s_simple_cmd *next;
-// }               t_simple_cmd;
+#include <sys/stat.h>
+#include <fcntl.h>
 typedef struct s_pipes
 {
     char *line;
     char **params;
+	char **file;
+	char **type;
+	int inp;
+	int out;
     struct s_pipes *next;
 }               t_pipes;
 typedef struct s_cmd{
     char *line;
     t_pipes *pipes;
-	// t_redirection *redirection;
     struct s_cmd *next;
 }               t_cmd;
 
@@ -33,9 +31,8 @@ typedef struct s_shell
 	char **envp;
 	char ***cmd_list;
     struct s_cmd *cmd;
-	int count_pipes;
 }       t_shell;
-
+int g_fork = 0;
 int	get_next_line(int fd, char **line);
 /************* split_space ***********/
 /************* join_path ***********/
@@ -70,14 +67,16 @@ static int	size_tab(char const *s)
 {
 	int count;
 	int	i;
+	int q;
 
+	q = 0;
 	i = 0;
 	count = 0;
 	while (s[i] && (s[i] == ' ' || s[i] == '\t'))
 		i++;
 	while (s[i])
 	{
-		while (s[i] && s[i] != ' ' && s[i] != '\t')
+		while (s[i] && (s[i] != ' ') && s[i] != '\t')
 			i++;
 		count++;
 		while (s[i] && (s[i] == ' ' || s[i] == '\t'))
@@ -120,7 +119,6 @@ char		**splite_space(char const *s)
 	char	**tab;
 	size_t	i;
 	size_t	count;
-
 	count = size_tab(s);
 	i = 0;
 	if ((tab = (char**)malloc(sizeof(char*) * (count + 1))) == 0)
@@ -170,6 +168,7 @@ char *get_line(char *line)
 			exit(0);
 		}
 	}
+	free(tmp);
 	return (line);
 }
 int not_comp_quote(char *line)
@@ -265,6 +264,222 @@ int is_error(char *line, char c)
 	}
 	return (0);
 }
+
+
+
+char *split_redirection(char *line)
+{
+	char *str;
+	int i;
+	int j;
+	int q;
+
+	q = 0;
+	i = 0;
+	j = 0;
+	if (!line)
+		return (NULL);
+	int size = ft_strlen(line) + 1;
+	str = (char *)malloc(sizeof(char) * size);
+	// if (check_redirection_error(line) == -1)
+	// 	return (line);
+	while (line[i])
+	{
+		if ((line[i] == '\"' || line[i] == '\'') && !q)
+			q = 1;
+		else if ((line[i] == '\"' || line[i] == '\'') && q)
+			q = 0;
+		if (((line[i] == '>' && line[i + 1] == '>') || (line[i] == '<' && line[i + 1] == '>')) && !q)
+		{
+			if (line[i - 1] && line[i - 1] != '>' &&  line[i - 1] != '<' && line[i - 1] != ' ')
+			{
+				size++;
+				str = realloc (str, size);
+				str[j++] = ' ';
+			}
+			str[j++] = line[i];
+			str[j++] = line[i + 1];
+			i++;
+			if (line[i + 1] && line[i + 1] != '>' &&  line[i + 1] != '<' &&  line[i + 1] != ' ')
+			{
+				size++;
+				str = realloc (str, size);
+				str[j++] = ' ';
+			}
+		}
+		else if ((line[i] == '>' || line[i] == '<') && !q)
+		{
+			if (line[i - 1] && line[i - 1] != '>' &&  line[i - 1] != '<' && line[i - 1] != ' ')
+			{
+				size++;
+				str = realloc (str, size);
+				str[j++] = ' ';
+			}
+			str[j++] = line[i];
+			if (line[i + 1] && line[i + 1] != '>' &&  line[i + 1] != '<' &&  line[i + 1] != ' ')
+			{
+				size++;
+				str = realloc (str, size);
+				str[j++] = ' ';
+			}
+		}
+		else
+			str[j++] = line[i];
+		i++;
+	}
+	str[j] = '\0';
+	return (str);
+}
+
+/*
+	- lets remove the file and the > from the line and store to ***file
+	- check error function the first line and return the problem beside check the error of the ;
+*/
+
+int found_redirection(char *line)
+{
+    if (strcmp(line, ">") == 0 || strcmp(line, ">>") == 0|| strcmp(line, "<") == 0)  
+        return (1);
+    else
+        return (0);
+}
+int count_redir(char **params)
+{
+	int i;
+	int count;
+	i = 0;
+	count = 0;
+	while (params[i])
+	{
+		if (found_redirection(params[i]))
+			count++;
+		i++;
+	}
+	return (count);
+}
+int check_not_qt(char **str, int pos)
+{
+	int i;
+	int q;
+	int j;
+
+	i = 0;
+	q = 0;
+
+	while (i < pos)
+	{
+		j = 0;
+		while (str[i][j])
+		{
+			if ((str[i][j] == '\"' || str[i][j] == '\"') && !q)
+				q = 1;
+			else if ((str[i][j] == '\"' || str[i][j] == '\"') && q)
+				q = 0;
+			j++;
+		}
+		i++;
+	}
+	return (q);
+}
+int size_params(char **str)
+{
+	int i;
+
+	i = 0;
+	while (str[i])
+		i++;
+	return (i);
+}
+void remove_params(t_pipes *pipes, int pos)
+{
+	int size;
+
+	size = size_params(pipes->params);
+	while (pos < size)
+	{
+		pipes->params[pos] = pipes->params[pos + 1];
+		pos++;
+	}
+	pipes->params[pos + 1] = NULL;
+    size--;
+}
+
+int found_in_useless(int *nb, int c)
+{
+	int i;
+	
+	i = 0;
+	while (nb[i])
+	{
+		if (c == nb[i] || c == nb[i] + 1)
+			return (1);
+		i++;
+	}
+	return(0);
+}
+char **remove_useless(t_pipes *pipes, int *nb, int c)
+{
+	char **tmp;
+	int i;
+	int j;
+
+	j = 0;
+	i = 0;
+	tmp = (char **)malloc(sizeof(char *) * (size_params(pipes->params) + 1));
+	if (tmp == 0)
+		return (pipes->params);
+	while (pipes->params[i])
+	{
+		if (found_in_useless(nb, i) == 0)
+		{
+			tmp[j] = ft_strdup(pipes->params[i]);
+			j++;
+		}
+		i++;
+	}
+	tmp[j] = NULL;
+	return (tmp);
+}
+void ft_redirection(t_pipes *pipes)
+{
+	int i;
+	int count;
+	int j;
+	int *nb_useless;
+	j = 0;
+	count = count_redir(pipes->params);
+	i = 0;
+	if ((pipes->file = (char **)malloc(sizeof(char *) * (count + 1))) == 0)
+		return ;
+	if ((pipes->type = (char **)malloc(sizeof(char *) * (count + 1))) == 0)
+		return ;
+	nb_useless  = (int *)malloc(sizeof(int *) * (count + 1));
+	count = 0;
+	while (pipes->params[i])
+	{
+		if (found_redirection(pipes->params[i]))
+		{
+			if (check_not_qt(pipes->params, i) == 0)
+			{
+				pipes->type[j] = ft_strdup(pipes->params[i]);
+				nb_useless[j] = i;
+				count++;
+				if (pipes->params[i + 1])
+				{
+					pipes->file[j] = ft_strdup(pipes->params[i + 1]);
+					count++;
+				}
+				else 
+					pipes->file[j] = ft_strdup("");
+				j++;
+			}
+		}
+		i++;
+	}
+	pipes->file[j] = NULL;
+	pipes->type[j] = NULL;
+	pipes->params = remove_useless(pipes, nb_useless, count);
+}
 t_pipes *ft_multipipe(t_cmd *cmd_list, char *line)
 {
     char **cmd;
@@ -275,16 +490,18 @@ t_pipes *ft_multipipe(t_cmd *cmd_list, char *line)
     if (cmd[0])
     {
         cmd_list->pipes = (t_pipes *)malloc(sizeof(t_pipes));
-        cmd_list->pipes->line = cmd[0];
+        cmd_list->pipes->line = split_redirection(cmd[0]);
         cmd_list->pipes->params = splite_space(cmd[0]);
+		ft_redirection(cmd_list->pipes);
         i = 1;
         tmp = cmd_list->pipes;
         while (cmd[i])
         {
             tmp->next = (t_pipes *)malloc(sizeof(t_pipes));
             tmp = tmp->next;
-            tmp->line = cmd[i];
+            tmp->line = split_redirection(cmd[i]);
             tmp->params = splite_space(cmd[i]);
+			ft_redirection(tmp);
             i++;
         }
         tmp->next = NULL;
@@ -300,8 +517,9 @@ t_pipes *fill_pipe(char *line)
     tmp = (t_pipes *)malloc(sizeof(t_pipes));
 	if (tmp && line)
 	{
-		tmp->line = line;
-        tmp->params = splite_space(line);
+		tmp->line = split_redirection(line);
+        tmp->params = splite_space(tmp->line);
+		ft_redirection(tmp);
 		tmp->next = NULL;
 	}
 	else
@@ -383,7 +601,23 @@ void print_pipes(t_pipes *pipe)
             ft_putstr("|\n");
             i++;
         }
-        ft_putstr("\n");
+		i = 0;
+		if (cmd->file)
+		{
+			ft_putstr("\nfile => \n");
+			while (cmd->file[i])
+			{
+				ft_putnbr_fd(i + 1, 1);
+				ft_putstr("-> |");
+				ft_putstr(cmd->file[i]);
+				ft_putstr("| -> |");
+				ft_putstr(cmd->type[i]);
+				//ft_putnbr_fd(cmd->out, 1);
+				ft_putstr("|\n");
+				i++;
+			}
+			ft_putstr("\n");
+		}
         cmd = cmd->next;
     }
 }
@@ -396,22 +630,134 @@ void print_list(t_shell *shell)
     {
         ft_putstr("-----------------------------\n");
         ft_putstr("cmd => ");
-        ft_putstr(tmp->line);
+        //ft_putstr(tmp->line);
         ft_putstr("\n");
         print_pipes(tmp->pipes);
         ft_putstr("-----------------------------\n");
         tmp = tmp->next;
     }
 }
-int found_redirection(char *line)
+
+int parse_exterieur(int count)
 {
-    if (strcmp(line, ">") || strcmp(line, ">>") || strcmp(line, "<"))  
-        return (1);
-    else
-        return (0);
+	ft_putstr("minishell: ");
+	ft_putstr("syntax error near unexpected token `");
+	if (count >= 4)
+		ft_putstr(">>'\n");
+	else
+		ft_putstr(">'\n");
+	return (-1);
+}
+int parse_inferieur(int count)
+{
+	ft_putstr("minishell: ");
+	ft_putstr("syntax error near unexpected token `");
+	if (count > 5)
+		ft_putstr("<<<'\n");
+	else if (count > 4)
+		ft_putstr("<<'\n");
+	else
+		ft_putstr("<'\n");
+	return (-1);
 }
 
-void fill_pipes(t_cmd **cmd)
+int check_parse_redir(char *line, int start, int end)
+{
+	int i;
+	int count;
+
+	count = 0;
+	i = 0;
+	if (end > 0)
+		line = ft_substr(line, start, end);
+	if (strcmp(line, "<>") == 0)
+	{
+		ft_putstr("minishell: syntax error near unexpected token `<>'\n");
+		return (-1);
+	}
+	if (!found_redirection(line))
+	{
+		while (line[i])
+		{
+			while (line[i] && line[i] == '>')
+			{
+				count++;
+				i++;
+			}
+			if (count > 2)
+				return (parse_exterieur(count));
+			count = 0;
+			while (line[i] && line[i] == '<')
+			{
+				count++;
+				i++;
+			}
+			if (count > 1)
+				return (parse_inferieur(count));
+		}
+	}
+	return (0);
+}
+int no_file_dir(char *s)
+{
+	ft_putstr("minishell: ");
+	ft_putstr(s);
+	ft_putstr(" : No such file or directory\n");
+	return (-1);
+}
+int check_redi_filename(t_pipes *pipes)
+{
+	int i;
+
+	i = 0;
+	pipes->out = 0;
+	pipes->inp = 0;
+	while (pipes->type[i])
+	{
+		if (ft_strlen(pipes->file[i]) == 0)
+		{
+			ft_putstr("minishell: syntax error near unexpected token `newline'\n");
+			return (-1);
+		}
+		if (found_redirection(pipes->file[i]))
+		{
+			if (check_parse_redir(pipes->file[i], 0, -1) == -1)
+				return (-1);
+			if (strcmp(pipes->file[i], ">") == 0)
+				parse_exterieur(1);
+			else if (strcmp(pipes->file[i], ">>") == 0)
+				parse_exterieur(4);
+			else if (strcmp(pipes->file[i], "<") == 0)
+				parse_inferieur(1);
+			return (-1);
+		}
+		if (strcmp(pipes->type[i], ">") == 0)
+			pipes->out = open(pipes->file[i], O_CREAT | O_TRUNC | O_WRONLY , 0664);
+		else if (strcmp(pipes->type[i], "<") == 0)
+		{
+			pipes->inp = open(pipes->file[i], O_RDONLY);
+			if (pipes->inp < 0)
+				return (no_file_dir(pipes->file[i]));
+		}
+		else if(strcmp(pipes->type[i], ">>") == 0)
+			pipes->out = open(pipes->file[i],  O_CREAT | O_RDWR | O_APPEND, 0644);
+		i++;
+	}
+	return (0);
+}
+int ft_pipes_redir(t_pipes *pipes)
+{
+	t_pipes *tmp;
+
+	while (tmp)
+	{
+		if (check_redi_filename(tmp) == -1)
+			return (-1);
+		tmp = tmp->next;
+	}
+	return (0);
+}
+int fill_pipes(t_cmd **cmd)
 {
     t_cmd *tmp;
 
@@ -419,17 +765,22 @@ void fill_pipes(t_cmd **cmd)
     while (tmp)
     {
         tmp->pipes = stock_pipes(tmp, tmp->line);
+		if (ft_pipes_redir(tmp->pipes) == -1)
+			return (-1);
         tmp = tmp->next;
     }
+	return (0);
 }
 
-void stock_command(t_cmd **cmd, char *line)
+int stock_command(t_cmd **cmd, char *line)
 {
     if (ft_strchr(line, ';'))
         *cmd = ft_mutlicmd(*cmd, line);
     else
         *cmd = fill_cmd(*cmd, line);
-    fill_pipes(cmd);
+    if (fill_pipes(cmd) == -1)
+		return (-1);
+	return (0);
 }
 int ft_cmdlen(t_pipes *pipes)
 {
@@ -463,12 +814,7 @@ void excute_cmd(t_shell *shell, t_pipes *pipe)
 		ft_putstr("Fork failed \n");
 	wait(&pid);
 }
-void no_file_dir(char *s)
-{
-	ft_putstr("minishell: ");
-	ft_putstr(s);
-	ft_putstr(" : No such file or directory\n");
-}
+
 int check_command(char *s)
 {
 	if (strcmp(s, "echo") == 0 || strcmp(s, "ECHO") == 0 || strcmp(s, "cd") == 0 || strcmp(s, "CD") == 0  || strcmp(s, "pwd") == 0
@@ -594,18 +940,18 @@ void ft_not_found(char *cmd)
 	ft_putstr(cmd);
 	ft_putstr(": command not found\n");
 }
-void call_commands(t_shell *shell, t_pipes *pipe)
-{
-	if (pipe->params[0])
-	{
-		if (pipe->params[0][0] == '/')
-			ft_path(shell, pipe->params[0], pipe);
-		else if (check_command(pipe->params[0]) == 0 && search_path(pipe->params[0], pipe) == 0)
-				ft_not_found(pipe->params[0]);
-		else 
-			call_command(shell, pipe, pipe->params[0]);
-	}
-}
+// void call_commands(t_shell *shell, t_pipes *pipe)
+// {
+// 	if (pipe->params[0])
+// 	{
+// 		if (pipe->params[0][0] == '/')
+// 			ft_path(shell, pipe->params[0], pipe);
+// 		else if (check_command(pipe->params[0]) == 0 && search_path(pipe->params[0], pipe) == 0)
+// 				ft_not_found(pipe->params[0]);
+// 		else 
+// 			call_command(shell, pipe, pipe->params[0]);
+// 	}
+// }
 void ft_pipes(t_shell *shell, t_cmd *cmd)
 {
 	t_pipes *tmp;
@@ -616,29 +962,54 @@ void ft_pipes(t_shell *shell, t_cmd *cmd)
 	tmp = cmd->pipes;
 	while (tmp)
 	{
-		pipe(fd);
-		pid = fork();
-		if (pid == -1)
+		if (tmp->params[0])
 		{
-			ft_putstr("fork problem");
-			exit(1);
-		}
-		else if (pid == 0)
-		{
-			dup2(fdd, 0);
-			if (tmp->next != NULL)
-				dup2(fd[1], 1);
-			close(fd[0]);
-			call_commands(shell, tmp);
-			exit(1);
-		}
-		else 
-		{
-			wait(NULL);
-			close(fd[1]);
-			fdd = fd[0];
+			if (tmp->params[0][0] == '/')
+			{
+				ft_path(shell, tmp->params[0], tmp);
+				break ;
+			}
+			else if (check_command(tmp->params[0]) == 0 && search_path(tmp->params[0], tmp) == 0 && found_redirection(tmp->params[0]) == 0)
+			{
+				ft_not_found(tmp->params[0]);
+				break ;
+			}
+			else 
+			{
+				g_fork++;
+				pipe(fd);
+				pid = fork();
+				if (pid == -1)
+					exit(1);
+				else if (pid == 0)
+				{
+					dup2(fdd, 0);
+					if (tmp->next != NULL)
+						dup2(fd[1], 1);
+					close(fd[0]);
+					if (tmp->out != 0)
+					{
+						dup2(tmp->out, 1);
+						close(tmp->out);
+					}
+					if (tmp->inp != 0)
+					{
+						dup2(tmp->inp, 0);
+						close(tmp->inp);
+					}
+					call_command(shell, tmp, tmp->params[0]);
+					exit(1);
+				}
+				else 
+				{
+					wait(NULL);
+					close(fd[1]);
+					fdd = fd[0];
+					tmp = tmp->next;
+				}
+			}
+		}else
 			tmp = tmp->next;
-		}
 	}
 }
 void ft_excute(t_shell *shell)
@@ -652,6 +1023,38 @@ void ft_excute(t_shell *shell)
 		cmd = cmd->next;
 	}
 }
+
+int is_redir_error(char *line)
+{
+	int i;
+	int q;
+	int end  = 0;
+	int start  = 0;
+	q = 0;
+	i = 0;
+	while (line[i])
+	{
+		if ((line[i] == '\'' || line[i] == '\"') && !q)
+			q = 0;
+		else if ((line[i] == '\'' || line[i] == '\"') && q)
+			q = 1;
+		end = 0;
+		start = i;
+		while (line[i] && (line[i] == '>' || line[i] == '<'))
+		{
+			end++;
+			i++;
+		}
+		if (start != i && check_parse_redir(line, start, end) == -1)
+			return (-1);
+		i++;
+	}
+	return (0);
+}
+void ft_free_all(t_shell *shell)
+{
+	// here to free everything
+}
 void ft_minishell(t_shell *shell)
 {
     char	*line;
@@ -659,14 +1062,16 @@ void ft_minishell(t_shell *shell)
 	while (ft_prompt())
 	{
         line = get_line(line);
-    	if (is_error(line, '|') == -1 || is_error(line, ';') == -1 || not_comp_quote(line) == -1)
+    	if (is_error(line, '|') == -1 || is_error(line, ';') == -1 || not_comp_quote(line) == -1 || is_redir_error(line) == -1)
 			continue ;
-        stock_command(&shell->cmd, line);
+        if (stock_command(&shell->cmd, line) == -1)
+			continue ;
 		ft_excute(shell);
         //print_list(shell);
 	}
 	free(line);
 	line = NULL;
+	ft_free_all(shell);
 }
 void signal_handler(int signum) 
 {
@@ -674,12 +1079,11 @@ void signal_handler(int signum)
 	{
         ft_putstr("\n");
 		ft_prompt();
-		signal(SIGINT, signal_handler);
 	} 
   	else if (signum == SIGQUIT)
 	{
-        ft_putstr("Quit: 3");
-        ft_putstr("\n");
+		if (g_fork > 0)
+			ft_putstr("Quit: 3\n");	
 	}  
 }
 
@@ -687,7 +1091,6 @@ void ft_initialise(t_shell *shell, char **envp)
 {
     shell->envp = envp;
     shell->cmd = NULL;
-	shell->count_pipes = 0;
 }
 int main(int ac, char **av, char **envp)
 {
