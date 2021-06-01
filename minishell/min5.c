@@ -10,6 +10,18 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <termios.h>
+#include <curses.h>
+#include <termcap.h>
+#include <sys/ioctl.h>
+#include <term.h>
+
+typedef struct s_history
+{
+    char *line;
+    struct s_history *prev;
+    struct s_history *next;
+}               t_hist;
 typedef struct s_pipes
 {
     char *line;
@@ -29,8 +41,9 @@ typedef struct s_cmd{
 typedef struct s_shell
 {
 	char **envp;
-	char ***cmd_list;
+	// char ***cmd_list;
     struct s_cmd *cmd;
+	t_hist *hist;
 }       t_shell;
 int g_fork = 0;
 int	get_next_line(int fd, char **line);
@@ -105,36 +118,36 @@ static int	skip_word(char const *s)
 	return (i);
 }
 
-static char	**free_table(char **tab, int j)
+static char	**free_table(char **tmp, int j)
 {
 	while (j--)
-		free(tab[j]);
-	free(tab);
-	tab = NULL;
+		free(tmp[j]);
+	free(tmp);
+	tmp = NULL;
 	return (NULL);
 }
 
 char		**splite_space(char const *s)
 {
-	char	**tab;
+	char	**tmp;
 	size_t	i;
 	size_t	count;
 	count = size_tab(s);
 	i = 0;
-	if ((tab = (char**)malloc(sizeof(char*) * (count + 1))) == 0)
+	if ((tmp = (char**)malloc(sizeof(char*) * (count + 1))) == 0)
 		return (NULL);
 	while(*s == ' ' || *s == '\t')
 		s++;
 	while (i < count)
 	{
 		s = s + skip_word(s);
-		if ((tab[i] = ft_substr(s, 0, size_word(s))) == 0)
-			return (free_table(tab, i));
+		if ((tmp[i] = ft_substr(s, 0, size_word(s))) == 0)
+			return (free_table(tmp, i));
 		i++;
 		s = s + size_word(s);
 	}
-	tab[i] = NULL;
-	return (tab);
+	tmp[i] = NULL;
+	return (tmp);
 }
 
 /************* split_space ***********/
@@ -182,6 +195,8 @@ int not_comp_quote(char *line)
 	dbl = 0;
 	while (line[i])
 	{
+		if (line[i] == '\\' && line[i + 1] != '\'' && ++i)
+			i++;
 		if (line[i] == '\"' && dbl == 0 && sngl == 0)
 			dbl = 1;
 		else if (line[i] == '\"' && dbl == 1 && sngl == 0)
@@ -219,9 +234,9 @@ int ft_quote(char *line, int i)
 int ft_msgerr(char *line, char c, int i)
 {	
 	ft_putstr("Minishell: syntax error near unexpected token `");
-	if (c == 'n')
-		ft_putstr("newline");
-	else if (line[i + 1] == c || (i > 0 && line[i - 1] == c))
+	// else if (c == 'n')
+	// 	ft_putstr("newline");
+	if (line[i + 1] == c || (i > 0 && line[i - 1] == c))
 	{
 		ft_putchar_fd(c, 2);
 		ft_putchar_fd(c, 2);
@@ -235,7 +250,7 @@ int is_error(char *line, char c)
 {
 	int i;
 
-	i = 1;
+	i = 0;
 	if (line[0] == c)
 		return (ft_msgerr(line, c, 0));
 	while (line[i] && (line[i] == ' ' || line[i] == '\t' || line[i] == '>' || line[i] == '<' || line[i] == c))
@@ -604,23 +619,23 @@ void print_pipes(t_pipes *pipe)
             ft_putstr("|\n");
             i++;
         }
-		i = 0;
-		if (cmd->file)
-		{
-			ft_putstr("\nfile => \n");
-			while (cmd->file[i])
-			{
-				ft_putnbr_fd(i + 1, 1);
-				ft_putstr("-> |");
-				ft_putstr(cmd->file[i]);
-				ft_putstr("| -> |");
-				ft_putstr(cmd->type[i]);
-				//ft_putnbr_fd(cmd->out, 1);
-				ft_putstr("|\n");
-				i++;
-			}
-			ft_putstr("\n");
-		}
+		// i = 0;
+		// if (cmd->file)
+		// {
+		// 	ft_putstr("\nfile => \n");
+		// 	while (cmd->file[i])
+		// 	{
+		// 		ft_putnbr_fd(i + 1, 1);
+		// 		ft_putstr("-> |");
+		// 		ft_putstr(cmd->file[i]);
+		// 		ft_putstr("| -> |");
+		// 		ft_putstr(cmd->type[i]);
+		// 		//ft_putnbr_fd(cmd->out, 1);
+		// 		ft_putstr("|\n");
+		// 		i++;
+		// 	}
+		// 	ft_putstr("\n");
+		// }
         cmd = cmd->next;
     }
 }
@@ -811,6 +826,7 @@ void excute_cmd(t_shell *shell, t_pipes *pipe)
 	pid_t pid;
 
 	pid = fork();
+	g_fork++;
 	if (pid == 0)
 		execve(pipe->params[0], pipe->params , shell->envp);
 	else if (pid < 0)
@@ -825,10 +841,42 @@ int check_command(char *s)
 		return (1);
 	return (0);
 }
+void echo_without_qt(char *str)
+{
+	int i;
+
+	i = 0;
+	while (str[i])
+	{
+		if (str[i] == '\\' && str[i +1] && str[i + 1] == '\\')
+			i++;
+		if ((str[i] != '\"' && str[i] != '\''))
+			ft_putchar_fd(str[i], 1);
+		i++;
+	}
+}
+
 void ft_echo(t_shell *shell, t_pipes *pipe)
 {
-	ft_putstr(pipe->line);
-	ft_putstr("\n");
+	int i;
+	int l;
+
+	l = 0;
+	i = 1;
+	if ((pipe->params[i]) && strcmp(pipe->params[i], "-n") == 0)
+	{
+		l = 1;
+		i++;
+	}
+	while (pipe->params[i])
+	{
+		echo_without_qt(pipe->params[i]);
+		if (pipe->params[i + 1])
+			ft_putchar_fd(' ', 1);
+		i++;
+	}
+	if (l == 0)
+			ft_putchar_fd('\n', 1);
 }
 void ft_cd(t_shell *shell, t_pipes *pipe)
 {
@@ -874,7 +922,6 @@ int ft_check_digit(char *str)
 void ft_exit(t_shell *shell, t_pipes *pipe)
 {
 	ft_putstr("exit\n");
-	exit(0);
 }
 
 int  search_path(char *line, t_pipes *pipe)
@@ -979,9 +1026,9 @@ void ft_pipes(t_shell *shell, t_cmd *cmd)
 			}
 			else 
 			{
-				g_fork++;
 				pipe(fd);
 				pid = fork();
+				g_fork++;
 				if (pid == -1)
 					exit(1);
 				else if (pid == 0)
@@ -1054,6 +1101,47 @@ int is_redir_error(char *line)
 	}
 	return (0);
 }
+void	add_hist_list(t_hist **hist, t_hist *tmp)
+{
+	if (*hist)
+	{
+		tmp->next = *hist;
+		(*hist)->prev = tmp;
+		*hist = tmp;
+	}
+	else
+		*hist = tmp;
+}
+void add_to_history(t_shell *shell, char *line)
+{
+	t_hist *tmp;
+
+	if(!line)
+		return ;
+	tmp = (t_hist *)malloc(sizeof(t_hist));
+	if (!tmp)
+		return ;
+	tmp->line = ft_strdup(line);
+	add_hist_list(&shell->hist, tmp);
+}
+
+
+void print_hist(t_shell *shell)
+{
+	t_hist *tmp;
+
+	tmp = shell->hist;
+	while (tmp)
+	{
+		ft_putendl_fd(tmp->line, 1);
+		tmp = tmp->next;
+	}
+}
+int putchar_hist(int c)
+{
+    return (write(1, &c, 1));
+}
+
 void ft_minishell(t_shell *shell)
 {
     char	*line;
@@ -1061,12 +1149,13 @@ void ft_minishell(t_shell *shell)
 	while (ft_prompt())
 	{
         line = get_line(line);
+		add_to_history(shell, line);
     	if (is_error(line, '|') == -1 || is_error(line, ';') == -1 || not_comp_quote(line) == -1 || is_redir_error(line) == -1)
 			continue ;
         if (stock_command(&shell->cmd, line) == -1)
 			continue ;
 		ft_excute(shell);
-        //print_list(shell);
+       // print_list(shell);
 	}
 	free(line);
 	line = NULL;
@@ -1076,9 +1165,7 @@ void signal_handler(int signum)
   	if (signum == SIGINT)
 	{
         ft_putstr("\n");
-		if (g_fork == 0)
-			ft_prompt();
-		//signal(SIGINT, signal_handler);
+		ft_prompt();
 	} 
   	else if (signum == SIGQUIT)
 	{
