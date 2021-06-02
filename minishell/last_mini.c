@@ -106,26 +106,43 @@ char *line_hist(t_shell *shell)
 	}
 	return (NULL);
 }
+char    *ft_print_his(int i, t_list *hist)
+{
+   int j = 0;
+   while (hist)
+   {
+       if (j == i)
+       {
+           return (hist->content);
+       }
+       hist = hist->next;
+       j++;
+   }
+	return (NULL);
+}
+
 void ft_arrow_up(t_shell *shell)
 {
 	if (shell->col != 0)
 	{
 		shell->col--;
-		tputs(restore_cursor, 1, putchar_term);
-		write(1, tgetstr("ce", NULL), strlen(tgetstr("ce", NULL)));
-		shell->line = line_hist(shell);
+		shell->line = ft_print_his(shell->col, shell->hist);
 	}
+	tputs(restore_cursor, 1, putchar_term);
+	write(1, tgetstr("ce", NULL), strlen(tgetstr("ce", NULL)));
+	ft_putstr(shell->line);
 }
 
 void	ft_arrow_down(t_shell *shell)
 {
-	if (shell->col < shell->new_col)
+	if (shell->col < shell->new_col - 1)
 	{
 		shell->col++;
-		tputs(restore_cursor, 1, putchar_term);
-		write(1, tgetstr("ce", NULL), strlen(tgetstr("ce", NULL)));
-		shell->line = line_hist(shell);
+		shell->line = ft_print_his(shell->col, shell->hist);
 	}
+	tputs(restore_cursor, 1, putchar_term);
+	write(1, tgetstr("ce", NULL), strlen(tgetstr("ce", NULL)));
+	ft_putstr(shell->line);
 }
 
 void	add_to_history(t_shell *shell)
@@ -146,9 +163,8 @@ void	add_to_history(t_shell *shell)
 }
 void	ft_arrow_enter(t_shell *shell, int i)
 {
-	shell->line[i] = '\0';
 	shell->col++;
-	shell->new_col = shell->col;
+	shell->new_col++;
 	add_to_history(shell);
 	ft_putstr("\n");
 	ft_prompt();
@@ -163,20 +179,33 @@ void	delete_end(t_shell *shell, int *col, int *row, char *cm, char *ce)
 	tputs(ce, 1, putchar_term);
 	shell->line = ft_substr(shell->line, 0, ft_strlen(shell->line) - 1);
 }
+void join_char_line(t_shell *shell, int c)
+{
+	char *str;
+	if (c != '\n' && ft_isprint(c))
+	{
+		str = malloc(sizeof(char) * 2);
+		str[0] = (char)c;
+		str[1] = '\0';
+		shell->line = ft_strjoin(shell->line, str);
+		free(str);
+	}
+}
 void	read_line(t_shell *shell)
 {
 	int	c;
 	int	i;
 
-	i = 0;
 	char *cm = tgetstr("cm", NULL); //cursor motion
 	char *ce = tgetstr("ce", NULL); //clear line from cursor
 	int row;
 	int col;
+    
+    char *tmp_free;
 	while (read(0, &c, sizeof(c)) >= 0)
 	{
 		get_cursor_position(&col, &row);
-		if (c == CTRLD && i == 0)
+		if (c == CTRLD)
 			ft_ctrld(shell);
 		if (c == UP_ARROW)
 			ft_arrow_up(shell);
@@ -184,15 +213,19 @@ void	read_line(t_shell *shell)
 			ft_arrow_down(shell);
 		else if (c == ENTER_ARROW)
 		{
-			ft_arrow_enter(shell, i);
-			i = 0;
+            if (*(shell->line) != 0)
+			{
+			    ft_arrow_enter(shell, i);
+				shell->line = ft_strdup("");
+            }
 		}
 		else if (c == BACKSPACE)
 			delete_end(shell, &col, &row, cm, ce);
 		else
 		{
-			shell->line[i++] = c;
-			write(1, &c, 1);
+			col++;
+			write(0, &c, 1);
+			join_char_line(shell, c);
 		}
 		c = 0;
 	}
