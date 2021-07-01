@@ -57,6 +57,7 @@ typedef struct s_pipes
 	int					is_red;
 	struct s_pipes		*next;
 }				t_pipes;
+
 typedef struct s_cmd
 {
 	char				*line;
