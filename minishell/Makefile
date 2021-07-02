@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: nbjaghou <nbjaghou@student.42.fr>          +#+  +:+       +#+         #
+#    By: mochegri <mochegri@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/06/08 16:36:34 by nbjaghou          #+#    #+#              #
-#    Updated: 2021/06/15 18:18:00 by nbjaghou         ###   ########.fr        #
+#    Updated: 2021/07/02 16:14:09 by mochegri         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -57,6 +57,7 @@ SRC = minishell.c \
 	  utils/ft_strjoin.c	\
 	  utils/ft_strlen.c		\
 	  utils/ft_substr.c		\
+	  
 
 OBJ = minishell.o \
 	  srcs/call_command.o \

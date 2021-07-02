@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nbjaghou <nbjaghou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mochegri <mochegri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/03 15:38:43 by nbjaghou          #+#    #+#             */
-/*   Updated: 2021/06/15 18:25:37 by nbjaghou         ###   ########.fr       */
+/*   Updated: 2021/07/02 12:38:28 by mochegri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ void	ft_parse(t_shell *shell)
 
 void	ft_initialise(t_shell *shell, char **envp)
 {
-	shell->envp = envp;
+	shell->envp = init_envp(envp);
 	shell->cmd = NULL;
 	shell->fork = 0;
 	shell->hist_last = NULL;

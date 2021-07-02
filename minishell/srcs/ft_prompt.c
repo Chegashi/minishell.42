@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_prompt.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nbjaghou <nbjaghou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mochegri <mochegri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/03 15:20:04 by nbjaghou          #+#    #+#             */
-/*   Updated: 2021/06/15 17:04:50 by nbjaghou         ###   ########.fr       */
+/*   Updated: 2021/07/01 09:18:31 by mochegri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,6 @@ void	ft_putstr(char *str)
 
 int 	ft_prompt(void)
 {
-	ft_putstr("\e[1;32mminishell$ \e[0;37m");
+	ft_putstr("🍑\e[1;32mminishell🍑$ \e[0;37m");
 	return (1);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nbjaghou <nbjaghou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mochegri <mochegri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/02 12:27:00 by nbjaghou          #+#    #+#             */
-/*   Updated: 2021/06/15 17:05:16 by nbjaghou         ###   ########.fr       */
+/*   Updated: 2021/07/02 16:04:35 by mochegri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,16 +35,26 @@
 # define DOWN_ARROW 4348699
 # define ENTER_ARROW 10
 # define CTRLD 4
-typedef struct s_data
+
+typedef struct		s_v_env
 {
-	int					fork;
+    char			*key;
+    char			*value;
+    struct s_v_env	*next;
+}					t_v_env;
+
+typedef struct	s_data
+{
+	int			fork;
 }				t_data;
+
 typedef struct s_hist
 {
 	char				*line;
 	struct s_hist		*prev;
 	struct s_hist		*next;
 }				t_hist;
+
 typedef struct s_pipes
 {
 	char				*line;
@@ -64,9 +74,10 @@ typedef struct s_cmd
 	t_pipes				*pipes;
 	struct s_cmd		*next;
 }				t_cmd;
+
 typedef struct s_shell
 {
-	char				**envp;
+	t_v_env				*envp;
 	struct s_cmd		*cmd;
 	t_hist				*hist;
 	t_hist				*hist_last;
@@ -83,6 +94,7 @@ typedef struct s_shell
 	int					c;
 	char				buf[255];
 }				t_shell;
+
 typedef struct s_split
 {
 	char	*str;
@@ -90,7 +102,9 @@ typedef struct s_split
 	int		j;
 	int		q;
 }				t_split;
+
 t_data	g_data;
+t_v_env *init_envp(char **envp);
 void	ft_putstr(char *str);
 int		ft_prompt(void);
 void	signal_handler(int signum);
@@ -152,8 +166,8 @@ void	ft_excute(t_shell *shell);
 void	excute_pipes(t_shell *shell, t_cmd *cmd);
 void	call_command(t_shell *shell, t_pipes *pipe, char *s);
 void	ft_cd(t_shell *shell, t_pipes *pipe);
-void	ft_echo(t_shell *shell, t_pipes *pipe);
-void	ft_env(t_shell *shell, t_pipes *pipe);
+void	ft_echo(t_v_env *head, t_pipes *pipe);
+void	ft_env(t_v_env *head);
 void	ft_exit(t_shell *shell, t_pipes *pipe);
 void	ft_export(t_shell *shell, t_pipes *pipe);
 void	ft_pwd(t_pipes *pipe);
@@ -164,4 +178,14 @@ int		size_params(char **str);
 void	remove_params(t_pipes *pipes, int pos);
 void	free_ta(char **tabl);
 int		count_pipes(t_pipes *pipes);
+
+
+char	*key_from_str(char *str);
+t_v_env	*str_to_v_env(char *str);
+char	*value_from_str(char *str);
+char	*key_from_str(char *str);
+int	ft_strlen_dil(char *str, char d);
+t_v_env	*init_envp(char **envp);
+char	*get_value(char *key, t_v_env *head);
+
 #endif

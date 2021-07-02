@@ -1,30 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_env.c                                           :+:      :+:    :+:   */
+/*   init_envp.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mochegri <mochegri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/06/08 16:18:50 by nbjaghou          #+#    #+#             */
-/*   Updated: 2021/07/02 13:15:23 by mochegri         ###   ########.fr       */
+/*   Created: 2021/06/30 11:40:02 by mochegri          #+#    #+#             */
+/*   Updated: 2021/07/02 09:52:16 by mochegri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../minishell.h"
-
-void	ft_env(t_v_env *head)
-{
-	t_v_env   *iter;
-
-	iter = head;
-	while(iter)
-	{
-		ft_putstr(iter->key);
-		write(1, "\n", 1);
-		ft_putstr(iter->value);
-		iter = iter->next;
-	}
-}
+#include "microshell.h"
 
 t_v_env	*str_to_v_env(char *str)
 {
@@ -101,6 +87,18 @@ t_v_env	*init_envp(char **envp)
 		iter = iter->next;
 	}
 	return (head);
+}
+
+void	__env__(t_v_env *head)
+{
+	t_v_env   *iter;
+
+	iter = head;
+	while(iter)
+	{
+		printf("%s=%s\n", iter->key, iter->value);
+		iter = iter->next;
+	}
 }
 
 char	*get_value(char *key, t_v_env *head)
