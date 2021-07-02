@@ -6,7 +6,7 @@
 /*   By: mochegri <mochegri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/01 21:22:20 by mochegri          #+#    #+#             */
-/*   Updated: 2021/07/01 21:25:39 by mochegri         ###   ########.fr       */
+/*   Updated: 2021/07/02 10:50:16 by mochegri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ int	ft_strcmp(char *s1, char *s2)
 	int i;
 
 	i = 0;
-	while (s1[i] != '\0' && s2[i] != '\0')
+	while (*(s1 + i) && *(s2 + i))
 	{
 		if (s1[i] != s2[i])
 			return ((unsigned char)s1[i] - (unsigned char)s2[i]);
@@ -83,7 +83,7 @@ char	**ft_fill(char *s, char c, char **wrds)
 			wrds[j][k++] = *s++;
 		wrds[j][k] = 0;
 	}
-	wrds[j] = 0;
+	wrds[++j] = 0;
 	return (wrds);
 }
 

@@ -6,7 +6,7 @@
 /*   By: mochegri <mochegri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/30 11:19:12 by mochegri          #+#    #+#             */
-/*   Updated: 2021/07/02 08:57:46 by mochegri         ###   ########.fr       */
+/*   Updated: 2021/07/02 11:09:11 by mochegri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,5 @@ int main(int ac, char **av, char **envp)
     t_v_env   *head;
 
     head = init_envp(envp);
-    echo("$SHELL -n -n -n 1 22 333  4444 55555 666666 7777777 88888888 999999999", head);
     return (0);
 }

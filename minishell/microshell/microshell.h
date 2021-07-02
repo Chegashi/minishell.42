@@ -6,7 +6,7 @@
 /*   By: mochegri <mochegri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/30 11:34:39 by mochegri          #+#    #+#             */
-/*   Updated: 2021/07/02 08:57:01 by mochegri         ###   ########.fr       */
+/*   Updated: 2021/07/02 09:45:50 by mochegri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ typedef struct s_v_env
     struct s_v_env      *next;
 }       t_v_env;
 t_v_env *str_to_v_env(char *str);
-int     ft_strlen_dil(char *str, char d, char d2);
+int     ft_strlen_dil(char *str, char d);
 t_v_env *init_envp(char **envp);
 void    __env__(t_v_env *head);
 char    *get_value(char *key, t_v_env *head);
