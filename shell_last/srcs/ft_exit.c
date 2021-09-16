@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_exit.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nbjaghou <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: nbjaghou <nbjaghou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/27 19:05:09 by nbjaghou          #+#    #+#             */
-/*   Updated: 2021/07/27 19:05:10 by nbjaghou         ###   ########.fr       */
+/*   Updated: 2021/09/16 17:07:40 by nbjaghou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 void	msg_error_exit(char *msg, char *str)
 {
-	write(2, "bash: exit: ", 13);
+	ft_putstr_fd("minishell: exit: ", 2);
 	write(2, str, ft_strlen(str));
 	write(2, msg, ft_strlen(msg));
 	write(2, "\n", 2);

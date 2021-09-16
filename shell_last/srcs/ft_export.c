@@ -6,7 +6,7 @@
 /*   By: nbjaghou <nbjaghou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/27 18:48:53 by nbjaghou          #+#    #+#             */
-/*   Updated: 2021/07/28 18:58:38 by nbjaghou         ###   ########.fr       */
+/*   Updated: 2021/09/16 17:08:19 by nbjaghou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,7 +108,7 @@ void	read_export(char **envp)
 
 void	msg_error_export(char *msg, char *str)
 {
-	write(2, "bash: export: `", 16);
+	ft_putstr_fd("minishell: export: `", 2);
 	write(2, str, ft_strlen(str));
 	write(2, msg, ft_strlen(msg));
 	g_data.n_exit = 1;

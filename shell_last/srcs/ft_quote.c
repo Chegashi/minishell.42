@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_quote.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nbjaghou <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: nbjaghou <nbjaghou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/27 18:13:34 by nbjaghou          #+#    #+#             */
-/*   Updated: 2021/07/27 18:13:36 by nbjaghou         ###   ########.fr       */
+/*   Updated: 2021/09/16 17:06:55 by nbjaghou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ int	is_error(char *line, char c, int i)
 
 int	quote_error(void)
 {
-	ft_putstr_fd("bash: syntax error: unexpected end of file \n", 2);
+	ft_putstr_fd("minishell: syntax error: unexpected end of file \n", 2);
 	g_data.n_exit = 258;
 	return (-1);
 }

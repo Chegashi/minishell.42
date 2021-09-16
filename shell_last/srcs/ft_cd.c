@@ -6,7 +6,7 @@
 /*   By: nbjaghou <nbjaghou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/27 17:22:48 by nbjaghou          #+#    #+#             */
-/*   Updated: 2021/07/28 13:26:24 by nbjaghou         ###   ########.fr       */
+/*   Updated: 2021/09/16 17:06:17 by nbjaghou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,13 @@
 
 void	msg_error_cd(char *msg)
 {
-	write(2, "bash: cd: ", 11);
+	ft_putstr_fd("minishell: cd: ", 2);
 	write(2, msg, ft_strlen(msg));
 }
 
 void	msg_error_cd2(char *msg, char *str)
 {
-	write(2, "bash: cd: ", 11);
+	ft_putstr_fd("minishell: cd: ", 2);
 	write(2, str, ft_strlen(str));
 	write(2, ": ", 3);
 	write(2, msg, ft_strlen(msg));

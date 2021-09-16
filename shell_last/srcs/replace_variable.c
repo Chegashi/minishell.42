@@ -6,7 +6,7 @@
 /*   By: nbjaghou <nbjaghou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/27 21:14:29 by nbjaghou          #+#    #+#             */
-/*   Updated: 2021/07/28 18:15:37 by nbjaghou         ###   ########.fr       */
+/*   Updated: 2021/09/16 17:58:04 by nbjaghou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,13 +70,13 @@ int	replace_variable2(int i, char *str, char *var, char **line)
 {
 	char	*value;
 	char	*tmp;
-
+	
 	var = ft_substr(str, 0, i);
 	add_to_mem(&g_data.mem, var);
 	if (is_just_dollar(var) == 0)
 	{
 		value = get_variable(var);
-		tmp = str_replace(*line, var, value);
+		tmp = str_replace(*line, var, value, 0l);
 		if (!is_in_sq(tmp, i))
 		{
 			add_to_mem(&g_data.mem, *line);

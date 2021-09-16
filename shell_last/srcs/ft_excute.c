@@ -6,7 +6,7 @@
 /*   By: nbjaghou <nbjaghou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/02 12:27:00 by nbjaghou          #+#    #+#             */
-/*   Updated: 2021/07/28 18:01:10 by nbjaghou         ###   ########.fr       */
+/*   Updated: 2021/09/16 17:57:27 by nbjaghou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,7 @@ void	ft_excute(void)
 	{
 		status = ft_itoa(g_data.n_exit);
 		add_to_mem(&g_data.mem, cmd->line);
-		cmd->line = str_replace(cmd->line, "$?", status);
+		cmd->line = str_replace(cmd->line, "$?", status, 2);
 		cmd->line = replace_variable(cmd->line);
 		add_to_mem(&g_data.mem, status);
 		if (size_without_sp(cmd->line) > 0)

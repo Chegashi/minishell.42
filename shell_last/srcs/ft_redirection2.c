@@ -6,7 +6,7 @@
 /*   By: nbjaghou <nbjaghou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/27 18:11:55 by nbjaghou          #+#    #+#             */
-/*   Updated: 2021/07/28 13:46:23 by nbjaghou         ###   ########.fr       */
+/*   Updated: 2021/09/16 17:07:06 by nbjaghou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ int	check_redi_filehelper(char **file, int i)
 {
 	if (ft_strcmp(file[i], " ") == 0)
 	{
-		ft_putstr_fd("bash: syntax error near unexpected ", 2);
+		ft_putstr_fd("minishell: syntax error near unexpected ", 2);
 		ft_putstr_fd("token `newline'\n", 2);
 		return (-1);
 	}

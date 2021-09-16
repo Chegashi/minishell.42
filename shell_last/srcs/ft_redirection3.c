@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_redirection3.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nbjaghou <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: nbjaghou <nbjaghou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/27 18:12:37 by nbjaghou          #+#    #+#             */
-/*   Updated: 2021/07/27 18:12:40 by nbjaghou         ###   ########.fr       */
+/*   Updated: 2021/09/16 17:07:09 by nbjaghou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ int	found_redirection(char *line)
 
 int	parse_exterieur(int count)
 {
-	ft_putstr_fd("bash: ", 2);
+	ft_putstr_fd("minishell: ", 2);
 	ft_putstr_fd("syntax error near unexpected token `", 2);
 	if (count >= 4)
 		ft_putstr_fd(">>'\n", 2);
@@ -35,7 +35,7 @@ int	parse_exterieur(int count)
 
 int	parse_inferieur(int count)
 {
-	ft_putstr_fd("bash: ", 2);
+	ft_putstr_fd("minishell: ", 2);
 	ft_putstr_fd("syntax error near unexpected token `", 2);
 	if (count > 5)
 		ft_putstr_fd("<<<'\n", 2);

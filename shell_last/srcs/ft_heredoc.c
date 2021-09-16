@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_heredoc.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nbjaghou <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: nbjaghou <nbjaghou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/27 18:45:35 by nbjaghou          #+#    #+#             */
-/*   Updated: 2021/07/27 18:46:09 by nbjaghou         ###   ########.fr       */
+/*   Updated: 2021/09/16 17:06:52 by nbjaghou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ char	**remove_useless(t_pipes *pipes, int *nb)
 
 int	no_file_dir(char *s)
 {
-	ft_putstr("bash: ");
+	ft_putstr("minishell: ");
 	ft_putstr(s);
 	ft_putstr(": ");
 	ft_putendl_fd(strerror(errno), 2);

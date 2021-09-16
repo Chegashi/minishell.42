@@ -6,7 +6,7 @@
 /*   By: nbjaghou <nbjaghou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/02 12:27:00 by nbjaghou          #+#    #+#             */
-/*   Updated: 2021/07/28 13:26:42 by nbjaghou         ###   ########.fr       */
+/*   Updated: 2021/09/16 17:56:03 by nbjaghou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,7 @@ void	call_command(t_pipes *pipe, char *s);
 void	ft_exit(t_pipes *pipe);
 void	ft_echo(t_pipes *pipe);
 void	ft_cd(char **params);
-char	*str_replace(char *str, char *sub, char *replace);
+char	*str_replace(char *str, char *sub, char *replace, int i);
 void	ft_unset(char **params);
 void	free_ta(char **tabl);
 void	ft_env(void);

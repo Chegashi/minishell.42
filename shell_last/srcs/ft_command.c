@@ -6,7 +6,7 @@
 /*   By: nbjaghou <nbjaghou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/08 16:18:39 by nbjaghou          #+#    #+#             */
-/*   Updated: 2021/07/28 13:43:48 by nbjaghou         ###   ########.fr       */
+/*   Updated: 2021/09/16 17:06:24 by nbjaghou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ int	check_command(char *s)
 
 void	ft_not_found(char *cmd)
 {
-	ft_putstr_fd("bash: ", 2);
+	ft_putstr_fd("minishell: ", 2);
 	ft_putstr_fd(cmd, 2);
 	ft_putstr_fd(": command not found\n", 2);
 	g_data.n_exit = 127;
@@ -32,7 +32,7 @@ void	ft_not_found(char *cmd)
 
 void	error_no_file(char *cmd)
 {
-	ft_putstr_fd("bash: ", 2);
+	ft_putstr_fd("minishell: ", 2);
 	ft_putstr_fd(cmd, 2);
 	ft_putstr_fd(": ", 2);
 	ft_putendl_fd(strerror(errno), 2);
@@ -41,7 +41,7 @@ void	error_no_file(char *cmd)
 
 void	error_is_dir(char *cmd)
 {
-	ft_putstr_fd("bash: ", 2);
+	ft_putstr_fd("minishell: ", 2);
 	ft_putstr_fd(cmd, 2);
 	ft_putendl_fd(": is a directory", 2);
 	g_data.n_exit = 127;

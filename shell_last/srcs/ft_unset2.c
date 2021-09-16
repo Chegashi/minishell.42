@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_unset2.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nbjaghou <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: nbjaghou <nbjaghou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/27 17:52:54 by nbjaghou          #+#    #+#             */
-/*   Updated: 2021/07/27 17:52:58 by nbjaghou         ###   ########.fr       */
+/*   Updated: 2021/09/16 17:07:59 by nbjaghou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ void	remove_from_env(int index, char **envp)
 
 void	msg_error_unset(char *msg, char *str)
 {
-	write(2, "bash: unset: `", 15);
+	ft_putstr_fd("minishell: unset: `", 2);
 	write(2, str, ft_strlen(str));
 	write(2, msg, ft_strlen(msg));
 	g_data.n_exit = 1;

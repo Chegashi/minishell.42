@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   ft_replace.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nbjaghou <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: nbjaghou <nbjaghou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/27 17:56:18 by nbjaghou          #+#    #+#             */
-/*   Updated: 2021/07/27 17:56:19 by nbjaghou         ###   ########.fr       */
+/*   Updated: 2021/09/16 17:55:59 by nbjaghou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-char	*str_replace(char *str, char *sub, char *rpl)
+char	*str_replace(char *str, char *sub, char *rpl, int i)
 {
 	t_replace	r;
 
@@ -22,7 +22,7 @@ char	*str_replace(char *str, char *sub, char *rpl)
 	if (sub == NULL || rpl == NULL)
 		return (r.new);
 	r.tmp = ft_strstr(r.new, sub);
-	while (r.tmp)
+	while (r.tmp && i != 1)
 	{
 		r.old = r.new;
 		r.old_l = ft_strlen(r.old);
@@ -34,6 +34,7 @@ char	*str_replace(char *str, char *sub, char *rpl)
 		ft_memset(r.new + r.old_l - r.sub_l + r.rp_l, 0, 1);
 		free(r.old);
 		r.tmp = ft_strstr(r.new, sub);
+		i++;
 	}
 	return (r.new);
 }

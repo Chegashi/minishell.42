@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_quote2.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nbjaghou <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: nbjaghou <nbjaghou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/27 18:14:03 by nbjaghou          #+#    #+#             */
-/*   Updated: 2021/07/27 18:14:28 by nbjaghou         ###   ########.fr       */
+/*   Updated: 2021/09/16 17:07:03 by nbjaghou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 int	msg_error(char *line, char c, int i)
 {	
-	ft_putstr_fd("bash: syntax error near unexpected token `", 2);
+	ft_putstr_fd("minishell: syntax error near unexpected token `", 2);
 	g_data.n_exit = 258;
 	if (line[i + 1] == c || (i > 0 && line[i - 1] == c))
 	{
@@ -33,7 +33,7 @@ int	end_pipe_file(char *line, int i)
 	{
 		if (line[i] == '|')
 		{
-			ft_putstr_fd("bash: syntax error: unexpected end of file\n", 2);
+			ft_putstr_fd("minishell: syntax error: unexpected end of file\n", 2);
 			g_data.n_exit = 258;
 			return (-1);
 		}
@@ -48,7 +48,7 @@ int	end_semi_file(char *line, int i)
 	{
 		if (line[i] == '|')
 		{
-			ft_putstr_fd("bash: syntax error near unexpected token `;'\n", 2);
+			ft_putstr_fd("minishell: syntax error near unexpected token `;'\n", 2);
 			g_data.n_exit = 258;
 			return (-1);
 		}
